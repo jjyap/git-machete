@@ -175,7 +175,9 @@ workflows:
       - dry_run_deploy_from_develop:
           filters:
             branches:
-              only: "develop"
+              only:
+              - "develop"
+              - "/bugfix\/.*/"
           requires:
             *mandatory_jobs
       - deploy_from_master:
@@ -184,9 +186,9 @@ workflows:
               only: "master"
           requires:
             *mandatory_jobs
-      - dry_run_deploy_from_testing_branch:
-          filters:
-            branches:
-              only: "bugfix/restore_snaps"
+      #- dry_run_deploy_from_testing_branch:
+      #    filters:
+      #      branches:
+       #       only: "bugfix/restore_snaps"
           #requires:
           #  *mandatory_jobs
