@@ -145,6 +145,37 @@ jobs:
             sudo apt-get install hub
             bash ci/github-releases/ci-deploy.sh
 
+  dry_run_deploy_from_testing_branch:
+    executor: ubuntu_executor
+    steps:
+      - checkout
+      - deploy:
+          name: '[Dry run] Deploy to PyPI'
+          # Side effects: does an actual release, but to the test PyPI
+          command: bash ci/pypi/ci-deploy.sh --dry-run
+
+      - deploy:
+          name: '[Dry run] Update Homebrew tap'
+          # Prerequisites: artifacts must be released to test PyPI first
+          command: bash ci/homebrew-tap/ci-deploy.sh --dry-run
+
+      - deploy:
+          name: '[Dry run] Build & upload deb package to PPA'
+          # Side effects: potentially pushes a regenerated Docker image
+          command: bash ci/deb-ppa-upload/ci-deploy.sh --dry-run
+
+      - deploy:
+          name: '[Dry run] Build rpm package'
+          # Side effects: potentially pushes a regenerated Docker image
+          # Other than that, it just builds the package without publishing anything; there's no special dry-run mode
+          command: bash ci/rpm/ci-run.sh
+      - deploy:
+          name: 'Build .snap for linux distros'
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y snapd
+            sudo apt-get install snapcraft -y
+            snapcraft
       # Note: there are also releases happening outside of our CI:
       # 1) every time a commit is pushed to `master`, a Snap build for `edge` channel
       #    is triggered automatically via GitHub webhook on https://build.snapcraft.io/user/VirtusLab/git-machete,
@@ -171,5 +202,11 @@ workflows:
           filters:
             branches:
               only: "master"
+          requires:
+            *mandatory_jobs
+      - dry_run_deploy_from_testing_branch:
+          filters:
+            branches:
+              only: "bugfix/restore_snaps"
           requires:
             *mandatory_jobs
