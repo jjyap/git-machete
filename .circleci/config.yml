@@ -154,6 +154,7 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install -y snapd
+            sudo snap install multipass
             sudo apt-get --yes install snapcraft
             snapcraft
       # Note: there are also releases happening outside of our CI:
