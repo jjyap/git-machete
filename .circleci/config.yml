@@ -177,7 +177,7 @@ workflows:
             branches:
               only:
               - "develop"
-              - "/bugfix\/.*/"
+              - "/bugfix.*/"
           requires:
             *mandatory_jobs
       - deploy_from_master:
